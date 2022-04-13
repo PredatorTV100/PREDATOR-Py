@@ -1,1 +1,997 @@
+#====[ OPCIONES DEV (0=off/1=on) ]=======
+num_servers=4 #servidores por defecto
+max_retry=50 #Max. reintentos
+m3u_info=1
+auto_reporte=0
+multi_check=0
+repetir_servers=0
+#========================================
+bd_unifi=1#BASE DE DATOS PARA TESTEOS 1=Si/0=No
+bd_name_unifi='BD Unificada'
+BDUNIFI='https://raw.githubusercontent.com/PredatorTV100/PREDATOR-Py/main/BD.txt'
+#=======[ BOT TELEGRAM]===============
+api_t='bot5025190185:AAEoWZjyCUcogQu9kvUtgHstxFpXjSuKN8w'
+chat='-1001777107489'
+#=======[ Check canales ]============
+token = ''
+cid = ''
+mac = ''
+portal = ''
+#=========[ Wifi o Datos]============
+try:
+ import socket
+except:
+ subprocess.run(["clear", ""])
+ pip.main(['install', 'socket'])
+ import socket
 
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect(("8.8.8.8", 80))
+
+get_ip=s.getsockname()[0]
+ip=get_ip.split('.')[0]
+ip2=get_ip.split('.')[1]
+miip=str(ip+"."+ip2)
+#print(miip)
+
+if miip == '192.168':
+    extc=''
+else:
+    extc=' [DATOS]'
+    
+s.close()
+
+s = requests.Session()     
+
+def estado_server(portal, opcion_server, bd_name):
+    portal=portal.replace('http://','')
+    portal=portal.replace('/c/','')
+    portal=portal.replace('/stalker_portal','')
+    portal=portal.replace('/stalker_portal/c/','')
+    try:
+       portalsplit=portal.split(':')[1]
+       portal=portal.replace(":"+portalsplit,'')
+    except:
+        time.sleep(0.1)
+        
+    estado_server="""
+    
+     ╭───⪼ 🆂🅴🆁🆅🅴🆁 🅰🅲🆃🆄🅰🅻 ⪻───╮
+     ├● 💻 ➤ """+opcion_server+"""
+     ├──⪼ 📁 ʙᴀꜱᴇ ᴅᴇ ᴅᴀᴛᴏꜱ
+     ├● 💽 ➤ """+bd_name+"""
+     ├● 🔗 ➤ """+portal+"""
+     ╰────────────────────────────╯     
+     ╭─────────⪼ 🄸🄽🄵🄾 ⪻─────────╮
+            ᴇꜱᴛᴇ ᴘʀᴏᴄᴇꜱᴏ ᴘᴜᴇᴅᴇ ᴛᴀʀᴅᴀʀ
+                 ᴜɴᴏꜱ ᴍɪɴᴜᴛᴏꜱ.
+     ╰────────────────────────────╯
+               
+"""
+    print(estado_server)
+    return estado_server
+def bd_random():
+    rand = random.randint(1,3)
+    if rand == 1:#CAMD
+        bd_name="@camd1"
+        BD = "https://pastebin.com/raw/8d4mjxzV"
+    elif rand == 2:#FRANKLACOSTE
+        bd_name="@FrankLacoste"
+        BD = "https://pastebin.com/raw/qnN5Uc0B"
+    elif rand == 3:
+        bd_name="@HUGUESRAFAEL1969"
+        BD = "https://pastebin.com/raw/GxE5tcbW"
+    return BD, bd_name
+
+
+import os
+blacklist='predatortv/'
+miip2=requests.get('http://ip.42.pl/raw').text
+if not os.path.exists(blacklist):
+    os.mkdir(blacklist)
+    filelist=blacklist+miip2+"_blacklist.txt"
+    fileb=open(filelist,'a+')
+    fileb.write("Lista Negra\n")
+    filelistm3u=blacklist+"m3u.txt"
+    filem=open(filelistm3u,'a+')
+    filem.write("m3u list\n")
+    filem.close()
+    fileb.close()
+else:
+    filelist=blacklist+miip2+"_blacklist.txt"
+    fileb=open(filelist,'a+')
+    filelistm3u=blacklist+"m3u.txt"
+    filem=open(filelistm3u,'a+')
+    filem.close()
+    fileb.close()
+    
+def blacklisttxtwrite(portal, blacklist, miip2):
+    blacklist='predatortv/'  
+    filelist=blacklist+miip2+"_blacklist.txt"
+    fileb=open(filelist,'a+') 
+    fileb.write(portal+"\n")
+    fileb.close()	
+    
+
+m3u_check=""    
+def m3u_list(m3u_link, blacklist):
+    try:
+        get_lines = requests.get(m3u_link, timeout=(10)).text
+    except:
+        time.sleep(0.1)
+    with open(filelistm3u, 'w', encoding="utf-8") as m3u_list:
+        m3u_list.write(get_lines)  
+    with open(filelistm3u) as fh:
+    # Skip initial comments that starts with #
+        while True:
+            line = fh.readline()
+            if not line.startswith('#'):                
+                m3u_check=line
+                break
+    os.remove(filelistm3u)                           
+    return m3u_check    
+lineinlist=2
+def getserver(portal, blacklist, miip2, mac, BD, lineinlist):    
+    #print('getserver')
+    blacklist='predatortv/'  
+    filelist=blacklist+miip2+"_blacklist.txt"    
+    fileb=open(filelist,'r')   
+    line = fileb.read()
+    exec_process=0    
+       
+    if portal not in line:
+        lineinlist=2       
+    if portal in line:
+        lineinlist=1        
+    if lineinlist==2:
+         get_mac = urllib.request.urlopen(BD)
+         count = len(urllib.request.urlopen(BD).readlines())
+         L1 = random.randint(1,count)    
+         get1 = str(get_line(get_mac, L1).decode("utf-8"))
+         mac = str(get1.split('#')[0])
+         portal = str(get1.split('#')[1])
+         portal=portal.replace('\r\n','')
+         portal=portal.replace('/c/','')
+         portal=portal.replace('http://','')
+         lineinlist=0             
+         if portal in line:
+             lineinlist=1
+             portal=''
+             mac=''
+             exec_process=0
+         else:
+             exec_process=1
+             lineinlist=0
+         exec_process=1
+         #subprocess.run(["clear", ""])
+         #print('[IF] No en lista: '+portal)             
+         #time.sleep(3.0)
+                              
+    while lineinlist == 1:  
+       if portal in line:                                               
+            time.sleep(1.0)
+            get_mac = urllib.request.urlopen(BD)
+            count = len(urllib.request.urlopen(BD).readlines())
+            L1 = random.randint(1,count)    
+            get1 = str(get_line(get_mac, L1).decode("utf-8"))
+            mac = str(get1.split('#')[0])
+            portal = str(get1.split('#')[1])
+            portal=portal.replace('\r\n','')
+            portal=portal.replace('/c/','')
+            portal=portal.replace('http://','')   
+            exec_process=0                                                                                                         
+       else:
+            #subprocess.run(["clear", ""])
+            #print('[while] No en lista: '+portal)           
+            #time.sleep(3.0)           
+            exec_process=1                 
+            break               
+           
+        
+    return portal, mac, BD, exec_process
+    	
+  
+    
+def comprobando_ok(opcion_server):
+    comprobando_ok="""
+     ╭────────── •⚙️• ────────────╮
+      -  ℹ️   ɴᴏ ᴄɪᴇʀʀᴇ ʟᴀ ᴀᴘʟɪᴄᴀᴄɪᴏɴ   - 
+     ╰────────── •📡• ────────────╯
+
+      ✅ """+opcion_server+""" Actualizado ...
+      ⏭️ Pasando a siguiente servidor ...
+"""
+    print(comprobando_ok)
+    return comprobando_ok
+
+def update_current(opcion_server, bd_name, macdev, nick, portal, mac, m3u_info, m3u_result, token):
+    
+    update_current_m3u="""
+╭⪼🅿🆁🅴🅳🅰🆃🅾🆁🆃🆅
+├● 👨‍💻 ➤ ★ """+nick+""" ★
+├● 🌍 ➤ """+macdev+"""
+├──⪼ 📁 ʙᴀꜱᴇ ᴅᴇ ᴅᴀᴛᴏꜱ
+├● 💽 ➤ """+bd_name+"""
+├● 🗒️ ➤ """+opcion_server+"""
+├● 🌐 ➤ """+portal+"""
+├● 💻 ➤ """+mac+"""
+├──⪼ 📺 ᴇꜱᴛᴀᴅᴏ ᴍ3ᴜ
+├●"""+m3u_result+"""
+╰──⪼ ✅ ᴀᴄᴛᴜᴀʟɪᴢᴀᴄɪᴏɴ
+"""
+
+    update_current="""
+╭⪼🅿🆁🅴🅳🅰🆃🅾🆁🆃🆅
+├● 👨‍💻 ➤ ★ """+nick+""" ★
+├● 🌍 ➤ """+macdev+"""
+├──⪼ 📁 ʙᴀꜱᴇ ᴅᴇ ᴅᴀᴛᴏꜱ
+├● 💽 ➤ """+bd_name+"""
+├● 🗒️ ➤ """+opcion_server+"""
+├● 🌐 ➤ """+portal+"""
+├● 💻 ➤ """+mac+"""
+╰──⪼ ✅ ᴀᴄᴛᴜᴀʟɪᴢᴀᴄɪᴏɴ
+"""
+    if m3u_info == 1:
+        update_current=update_current_m3u
+    else:
+        update_current=update_current
+
+    requests.post('https://api.telegram.org/'+api_t+'/sendMessage', data={'chat_id': ''+chat+'', 'text': update_current})
+    return update_current
+    
+    
+def comprobando_fin(opcion_server):
+    comprobando_fin="""
+     ┌────────── •⚙️• ────────────┐
+      - ✅ Base de datos actualizada - 
+     └────────── •📡• ────────────┘
+	
+      ✅ """+opcion_server+""" Actualizado ...
+      ✅ Servidores actualizados ...
+      
+      🕚 Espere un momento por favor.
+"""
+    print(comprobando_fin)
+    return comprobando_fin
+    
+    
+
+def estados():   
+
+    max_retry_bot="""
+╭⪼🅿🆁🅴🅳🅰🆃🅾🆁🆃🆅
+├● 👨‍💻 ➤ ★ """+nick+""" ★ 
+├● 🌍 ➤ """+macdev+"""
+├──⪼ 🛑 ᴇʀʀᴏʀ
+├● ℹ️ ➤ Reintentos excedidos
+╰──⪼ 📴 ᴀᴜᴛᴏ-ʀᴇᴘᴏʀᴛᴇ    
+"""
+
+
+    max_retryes="""
+     ┌────────── •⚙️• ────────────┐
+      -    ⏳ Reintentos Excedidos   - 
+     └────────── •📡• ────────────┘
+	
+	
+	
+ 🛑 Pongase en contacto con su proveedor ...        
+"""
+
+
+    head = """
+     ╭─────⪼ 🅿🆁🅴🅳🅰🆃🅾🆁🆃🆅 ⪻─────╮
+     ├● 👨‍💻 ➤ ★ """+nick+""" ★
+     ├● 💻 ➤ """+macdev+"""
+     ╰── 🅸🅿🆃🆅 🅴🆇🆃🆁🅴🅼🅴 🄼🄾🄳 ───╯  
+
+
+"""
+    
+    cargando1="""
+     ╭────────── •⚙️• ────────────╮
+      -  ℹ️   ɴᴏ ᴄɪᴇʀʀᴇ ʟᴀ ᴀᴘʟɪᴄᴀᴄɪᴏɴ   - 
+     ╰────────── •📡• ────────────╯
+	
+      🔃 Actualizando ...
+"""
+    cargando2="""
+     ╭────────── •⚙️• ────────────╮
+      -  ℹ️   ɴᴏ ᴄɪᴇʀʀᴇ ʟᴀ ᴀᴘʟɪᴄᴀᴄɪᴏɴ   - 
+     ╰────────── •📡• ────────────╯
+
+      🔄 Actualizando ...
+"""
+    block="""
+     ╭────────── •🔒• ────────────╮
+      -  🛑 Tu MAC ha sido bloqueada - 
+     ╰────────── •📡• ────────────╯
+
+"""
+
+    comprobando1="""
+     ╭────────── •⚙️• ────────────╮
+      -  ℹ️   ɴᴏ ᴄɪᴇʀʀᴇ ʟᴀ ᴀᴘʟɪᴄᴀᴄɪᴏɴ   - 
+     ╰────────── •📡• ────────────╯
+
+      🔄 Actualizando ...
+"""
+
+    comprobando2="""
+     ╭────────── •⚙️• ────────────╮
+      -  ℹ️   ɴᴏ ᴄɪᴇʀʀᴇ ʟᴀ ᴀᴘʟɪᴄᴀᴄɪᴏɴ   - 
+     ╰────────── •📡• ────────────╯
+
+      🔃 Actualizando ...
+"""
+
+
+    fin="""    
+     ╭─────────⪼ 🄸🄽🄵🄾 ⪻─────────╮
+            ᴇɴ ᴄᴀꜱᴏ ᴅᴇ ɴᴏ ᴇɴᴄᴏɴᴛʀᴀʀ 
+              ᴄᴀɴᴀʟᴇꜱ  ᴇɴ ᴛᴜ ɪᴅɪᴏᴍᴀ 
+               ᴠᴜᴇʟᴠᴇ ᴀ ᴀᴄᴛᴜᴀʟɪᴢᴀʀ.
+     ╰────────────────────────────╯
+     
+     ╭────────── •⚙️• ────────────╮
+      - ✅ Base de datos actualizada - 
+     ╰────────── •📡• ────────────╯
+     
+      ✅ Actualizado ...
+      
+      
+
+     ╭────────── •📺• ────────────╮
+      -   🔌 Reinicia IPTV Extreme   - 
+     ╰────────── •📡• ────────────╯
+     
+     
+        
+     
+"""
+    return block, max_retry_bot, max_retryes, comprobando1, comprobando2, head, cargando1, cargando2, fin
+block, max_retry_bot, max_retryes, comprobando1, comprobando2, head, cargando1, cargando2, fin=estados()  
+
+def blacklist(macdev):
+    urlblacklist='https://pastebin.com/raw/xqqMhrqD'
+    read_urlblacklist = urllib.request.urlopen(urlblacklist)
+    for macs in read_urlblacklist:
+        macs = macs.decode("utf-8")
+        if macdev in macs:                           
+            print(head)
+            print(block)      
+            #print(macs)
+            quit()
+        else:
+            time.sleep(0.1)
+            
+    return urlblacklist
+
+blacklist(macdev) 
+
+def get_line(resp, n):
+    i = 1
+    while i < n:
+        resp.readline()
+        i += 1
+    return resp.readline()
+
+def strbetw(text, left, right):
+  match = re.search( left + '(.*?)' + right, text)
+  if match:  
+    return match.group(1)
+  return ''
+        
+      
+
+#======[ Actualizacion datos ]======
+url = "https://iptvextreme.eu/"  
+
+headers = {"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:95.0) Gecko/20100101 Firefox/95.0"}
+
+response = s.get(url = url, headers = headers)
+status = response.status_code
+if status != 200:
+  print(f"La pagina {url} no retorno status 200 sino status ", status)
+  exit()
+
+viewstate = strbetw(response.text, 'id="__VIEWSTATE" value="', '" />')
+viewstategenerator = strbetw(response.text, 'id="__VIEWSTATEGENERATOR" value="', '" />')
+eventvalidation = strbetw(response.text, 'id="__EVENTVALIDATION" value="', '" />')
+
+ 
+def update_servers():
+ #opcion=''
+ get_data = f"""
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="__EVENTTARGET"
+
+cmdSaveMag
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="__EVENTARGUMENT"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="__LASTFOCUS"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="__VIEWSTATE"
+
+{viewstate}
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="__VIEWSTATEGENERATOR"
+
+{viewstategenerator}
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="__EVENTVALIDATION"
+
+{eventvalidation}
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="TxtMacAddress"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="TxtName"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="TxtLink"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="TxtPlaylistPassword"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="txtXtreamMac"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="txtXtreamName"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="txtXtreamServer"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="txtXtreamUser"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="txtXtreamPassword"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="txtXtreamProtectionPassword"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="txtMagDestMac"
+
+{macdev}
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="txtMagName"
+
+{opcion}
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="txtMagPortal"
+
+{portal}
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="txtMagMac"
+
+{mac}
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="txtMagProtPassword"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="chkHieMag"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="txtMacToDelete"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="TxtDeletePassword"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="CmbDelete"
+
+1
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="TxtMacUpload"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="BackupUpload"; filename=""
+Content-Type: application/octet-stream
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="txtUploadPassword"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="txtVpnMac"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="txtVpnProfile"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="fuVpn"; filename=""
+Content-Type: application/octet-stream
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="dropType"
+
+1
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="txtVpnAppPassword"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="TxtEpgMac"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="TxtEpgName"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="TxtEpgLink"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="TxtEpgPassword"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="TxtImageMac"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="TxtPotImage"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="TxtLandImage"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="TxtPasswordImage"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="TextMsgMac"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="TxtSender"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="TextMessageToSend"
+
+
+-----------------------------11559465212583015810770176738
+Content-Disposition: form-data; name="txtLinkToCheck"
+
+
+-----------------------------11559465212583015810770176738--
+"""
+ return get_data
+
+
+headers = {"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:95.0) Gecko/20100101 Firefox/95.0", 
+            "Content-Type" : "multipart/form-data; boundary=---------------------------11559465212583015810770176738"}
+
+def gtoken():
+ HEADERA={
+	"Cookie": "mac="+mac+"; stb_lang=en; timezone=Europe%2FIstanbul;",
+	"Referer": portal+"/c/",
+	"X-User-Agent":"Model: MAG322; Link: Ethernet",
+	"Accept": "*/*",
+	"Connection": "Keep-Alive",
+	"Host": portal,
+	"Accept-Encoding": "gzip",
+	"User-Agent":"Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG200 stbapp ver: 4 rev: 1812 Mobile Safari/533.3", 
+		}	
+ #print(HEADERA)
+ ext = 'portal.php'
+ token_url="http://"+portal+"/"+ext+"?action=handshake&type=stb"
+ get_token = s.get(token_url,  headers=HEADERA, timeout=5, verify=False)
+ #print(get_token.text)
+ #print(str(token_url)) 
+ #quit() 
+ veri=str(get_token.text)
+ token=veri.replace('{"js":{"token":"',"")
+ token=token.split('"')[0]
+ return token
+
+
+def reporte(error, portal, mac, bd_name):
+    portalerror=portal.split(':')[0]
+    reporte="""
+╭⪼🅿🆁🅴🅳🅰🆃🅾🆁🆃🆅
+├● 👨‍💻 ➤ ★ """+nick+""" ★
+├● 🌍 ➤ """+macdev+"""
+├──⪼ 📁 ʙᴀꜱᴇ ᴅᴇ ᴅᴀᴛᴏꜱ
+├● 💽 ➤ """+bd_name+"""
+├● 🌐 ➤ http://"""+portalerror+"""
+├● 💻 ➤ """+mac+"""
+├──⪼ 🛑 ᴇʀʀᴏʀ
+├● ℹ️ ➤ """+error+"""
+╰──⪼ 📴 ᴀᴜᴛᴏ-ʀᴇᴘᴏʀᴛᴇ"""
+
+    return reporte
+
+def bd_inestable(bd_name):
+    bd_inestable="""
+╭⪼🅿🆁🅴🅳🅰🆃🅾🆁🆃🆅
+├● 👨‍💻 ➤ ★ """+nick+""" ★
+├● 🌍 ➤ """+macdev+"""
+├──⪼ 📁 ʙᴀꜱᴇ ᴅᴇ ᴅᴀᴛᴏꜱ
+├● 💽 ➤ """+bd_name+"""
+├──⪼ 🛑 ᴇʀʀᴏʀ
+├● ℹ️ ➤ Demasiados intentos
+╰──⪼ 📴 ᴀᴜᴛᴏ-ʀᴇᴘᴏʀᴛᴇ"""
+
+    return bd_inestable
+    
+def comprobar_canal(link):
+ hea={
+"Icy-MetaData": "1",
+"User-Agent": "Lavf/57.83.100", 
+"Accept-Encoding": "identity",
+"Host": portal,
+"Accept": "*/*",
+"Range": "bytes=0-",
+"Connection": "close",
+	}
+	
+ try:
+		res = s.get(link,  headers=hea, timeout=(2,5), allow_redirects=False,stream=True)
+		duru="NO"
+		if res.status_code==302:
+			 duru="OK"
+ except:
+		duru="NO"
+ return duru
+
+
+def hea2(mac,token):
+	HEADERd={
+"User-Agent":"Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG200 stbapp ver: 4 rev: 1812 Mobile Safari/533.3" ,
+"Referer": "http://"+portal+"/c/" ,
+"Accept": "application/json,application/javascript,text/javascript,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" ,
+"Cookie": "mac="+mac+"; stb_lang=en; timezone=Europe/Paris;",
+"Accept-Encoding": "gzip, deflate" ,
+"Connection": "Keep-Alive" ,
+"X-User-Agent":"Model: MAG254; Link: Ethernet",
+"Authorization": "Bearer "+token,
+	}
+	return HEADERd
+
+
+servers_repetidos=[]
+cambio_bd=0
+num_servers_act=0
+num_servers_opcion=0
+#====[ COMPROBACION Y ACTUALIZACION ]====
+bd_name=""
+if bd_unifi == 1:
+    bd_name=bd_name_unifi
+    BD=BDUNIFI
+else:
+    BD, bd_name=bd_random()
+
+while num_servers_act <= num_servers:
+    try:
+        if repetir_servers == 0:                                          
+            portal, mac, BD, exec_process=getserver(portal, blacklist, miip2, mac, BD,lineinlist)
+            if portal in servers_repetidos:
+                exec_process=0
+            else:
+                exec_process=1
+        if exec_process == 1:
+            #print('Has pasado')
+            #time.sleep(2.0)
+            pase_no=0          
+            if cambio_bd >= 10:
+                cambio_bd=0        
+                if bd_unifi == 1:
+                    bd_name=bd_name                    
+                    BD=BDUNIFI
+                else:
+                    BD, bd_name=bd_random()
+                                             
+            num_servers_opcion += 1
+            opcion_server = "PredatorTV ["+str(num_servers_opcion)+"]"
+            subprocess.run(["clear", ""])
+            print(head)
+            estado_server(portal, opcion_server, bd_name)
+            print(cargando1)
+            time.sleep(0.5)
+            cid=''
+            canal=''
+            cid_text=''
+            parche_link='{"js":{"id":"'+cid+'","cmd":"ffmpeg http:\/\/'+portal+'\/dZKAMgqmKVCSmSGBXASeM\/e3oW8IgFUs\/'+cid+'?play_token='+token+'"},"streamer_id":0,"link_id":0,"load":0,"error":""}'
+            parche_cid='107'
+            ext = 'portal.php'
+            envio=0        
+            #time.sleep(5)
+            subprocess.run(["clear", ""])
+            print(head)
+            estado_server(portal, opcion_server, bd_name)
+            print(cargando2)
+            time.sleep(0.5)                                                                                      
+            #====[ Obtener TOKEN ]=========
+            subprocess.run(["clear", ""])
+            print(head)
+            estado_server(portal, opcion_server, bd_name)
+            print(cargando1)
+            time.sleep(0.5)
+            token=''
+            token=gtoken()
+            subprocess.run(["clear", ""])
+            print(head)
+            estado_server(portal, opcion_server, bd_name)
+            print(cargando2)
+            time.sleep(0.5)   
+            #=====[ Obtener Canal ]=======               	  
+            get_cid_link= "http://"+portal+"/"+ext+"?type=itv&action=get_all_channels&force_ch_link_check=&JsHttpRequest=1-xml"
+            get_cid = s.get(get_cid_link, headers=hea2(mac,token), timeout=10, verify=False)      
+            cid_text=""        
+            cid_text=str(get_cid.text)         
+            subprocess.run(["clear", ""])
+            print(head)
+            estado_server(portal,opcion_server, bd_name)
+            print(cargando1)
+            time.sleep(0.5)
+            if cid_text == 'Blocked':
+                cambio_bd+=1           
+                cid=parche_cid
+                pase_no=1
+                error='Servidor Bloqueado'
+            else:
+                try:                       
+                    cid1=cid_text.split('ch_id":"')[250].split('"')[0]
+                    cid2=cid_text.split('ch_id":"')[450].split('"')[0]
+                    cid3=cid_text.split('ch_id":"')[650].split('"')[0]
+                
+                except:
+                    cid1=parche_cid
+                    cid2=parche_cid
+                    cid3=parche_cid
+                    cambio_bd+=1
+                    pase_no=1
+        #==============================
+        #=====[ Comprobar ]============
+
+            cidin=0
+            cidfin=3
+            subprocess.run(["clear", ""])
+            print(head)
+            estado_server(portal, opcion_server, bd_name)
+            print(comprobando1)
+            link=''
+            pase=''
+            check=0
+            if pase_no == 0:
+                while cidin != cidfin:
+                    cidin+=1                                       
+                    if cidin == 1:
+                        cid=cid1                                     
+                    if cidin == 2:
+                        cid=cid2                                    
+                    if cidin == 3:
+                        cid=cid3
+                                                   
+                    get_canal_link="http://"+portal+"/"+ext+"?type=itv&action=create_link&cmd=ffmpeg%20http://localhost/ch/"+str(cid)+"_&series=&forced_storage=0&disable_ad=0&download=0&force_ch_link_check=0&JsHttpRequest=1-xml"                                
+                    get_canal = s.get(get_canal_link, headers=hea2(mac,token), timeout=15, verify=False)
+                    canal=""
+                    canal=str(get_canal.text)
+                    link=''                         
+                    if canal == 'Blocked':
+                        pase_no=1
+                        #cambio_bd=+1
+                        canal=parche_link
+                        link=canal.split('ffmpeg ')[1].split('"')[0].replace('\/','/')
+                    #print('Fake blocked: '+canal)                    
+                    else:
+                        try:
+                            link=canal.split('ffmpeg ')[1].split('"')[0].replace('\/','/')                       
+                        except:
+                        #cambio_bd=+1
+                            canal=parche_link
+                            link=canal.split('ffmpeg ')[1].split('"')[0].replace('\/','/')                        
+                            check=100                                                                                                 
+                    subprocess.run(["clear", ""])
+                    print(head)
+                    estado_server(portal, opcion_server, bd_name)
+                    print(comprobando2)
+                    time.sleep(0.5)
+                    pase = comprobar_canal(link)
+                    if pase == 'OK':                                            
+                        if multi_check == 1:
+                            check+=1
+                        else: 
+                            check=3
+                            cidin=3
+                    else:
+                        pase_no=1
+                        cidin=3   
+                    if check == 3:
+                        pase='OK'
+                    if check == 100:
+                        pase_no=1
+                        cidin=3                
+            
+                user = str(link.replace('live/','').split('/')[3]) 
+                pas = str(link.replace('live/','').split('/')[4]) 
+                real='http://'+link.split('://')[1].split('/')[0]+'/c/'
+                playerlink=str("http://"+real.replace('http://','').replace('/c/','') +"/player_api.php?username="+user+"&password="+pas)
+                playerlink2=str("http://"+portal.replace('http://','').replace('/c/','') +"/player_api.php?username="+user+"&password="+pas)
+                m3u_link="http://"+portal.replace('http://','').replace('/c/', '')+"/get.php?username="+str(user)+"&password="+str(pas)+"&type=m3u_plus"	
+                m3u=''
+                try:
+                    res = requests.get(m3u_link, timeout=5)
+                    veri=""
+                    veri=str(res.text)
+                    veristatusm3u=str(res)
+                except:                
+                    veristatusm3u='No Disponible'
+
+ 
+                try:
+                    res = requests.get(playerlink, headers=hea2(mac,token), timeout=7, verify=False)
+                except:
+                    playerlink=playerlink2
+                    res = requests.get(playerlink, headers=hea2(mac,token), timeout=7, verify=False)               
+				     
+                veri=""
+                veristatus=""
+                veri=str(res.text)
+                veristatus=str(res)
+        
+                try:
+                    checkveri=veri.split('"')[1]
+                except:
+                    checkveri='no'
+                if veristatus == '<Response [200]>':
+                #print(checkveri)
+                #time.sleep(5)
+                    if checkveri == 'user_info':
+                        pase='OK'
+                    else:
+                        pase_no=1
+                else:
+                    pase_no=1
+                                  
+                
+                if pase_no == 1:
+                    pase='no'
+                if pase == 'OK':
+                    if m3u_info == 1:
+                        try:
+                            m3u_check=m3u_list(m3u_link, blacklist)                                                       
+                        except:
+                            req="error"
+                        try:
+                            req=str(requests.get(m3u_check, timeout=(2,5), allow_redirects=False,stream=True).status_code)
+                            if req == "200" or (req == "302"):
+                                m3u_result=' ✅ ➤  ONLINE'
+                            else:
+                                m3u_result=" ⛔ ➤  OFFLINE"
+                        except:                            
+                            if req == "error":
+                                m3u_result=" ⚠️ ➤  OFFLINE"     
+                            else:
+                                m3u_result=" ⛔ ➤  OFFLINE"                    
+                         
+            if pase == 'OK':
+            #==============================
+            #cambio_bd = 0
+                if repetir_servers == 0:               
+                    servers_repetidos+=[portal]
+                num_servers_act += 1                
+                envio += 1
+                opcion = "PredatorTV ["+str(num_servers_act)+"]"+extc
+                url = "https://iptvextreme.eu/"
+                get_data=update_servers()               
+                responses=s.post(url = url, headers = headers, data = get_data)
+                subprocess.run(["clear", ""])
+                print(head)
+                estado_server(portal, opcion_server, bd_name)
+                update_current(opcion_server, bd_name, macdev, nick, portal, mac, m3u_info, m3u_result, token)
+                if num_servers_act != num_servers:
+                    comprobando_ok(opcion_server)
+                    time.sleep(2)                                
+                else:
+                    comprobando_fin(opcion_server)
+                    time.sleep(2)
+            else:
+                subprocess.run(["clear", ""])               
+                print(head)            
+                estado_server(portal, opcion_server, bd_name)
+                print(comprobando1)
+                cambio_bd+=1
+                num_servers_opcion -= 1
+           # time.sleep(3.0)
+    except requests.exceptions.Timeout as a:
+        error='Espera agotada (Timeout)'
+        cambio_bd+=1
+        blacklisttxtwrite(portal, blacklist, miip2) 
+        if a == '[Errno 5] I/O error':
+            break
+        elif envio<=1:                     
+            #blacklisttxtwrite(portal, blacklist, miip2)    
+            num_servers_opcion -= 1
+            subprocess.run(["clear", ""])
+            print(head)            
+            estado_server(portal, opcion_server, bd_name)
+            if auto_reporte==1:         
+                requests.post('https://api.telegram.org/'+api_t+'/sendMessage', data={'chat_id': ''+chat+'', 'text': reporte(error, portal, mac, bd_name)})
+            continue
+        else:
+            break
+    except requests.exceptions.ConnectionError as e:
+        cambio_bd+=1
+        error="Error de conexion"            
+        blacklisttxtwrite(portal, blacklist, miip2)
+        num_servers_opcion -= 1
+        subprocess.run(["clear", ""])
+        print(head)            
+        estado_server(portal, opcion_server, bd_name) 
+        if auto_reporte==1: 
+            requests.post('https://api.telegram.org/'+api_t+'/sendMessage', data={'chat_id': ''+chat+'', 'text': reporte(error, portal, mac, bd_name)})
+        
+        
+        subprocess.run(["clear", ""])
+        print(head)
+        estado_server(portal, opcion_server, bd_name)
+        continue
+    except requests.exceptions.InvalidHeader as i:
+        num_servers_opcion -= 1
+        continue
+
+        subprocess.run(["clear", ""])
+        print(head)
+        estado_server(portal, opcion_server, bd_name)
+    
+    except requests.exceptions.ProtocolError as o:
+        num_servers_opcion -= 1
+        continue
+
+        subprocess.run(["clear", ""])
+        print(head)
+        estado_server(portal, opcion_server, bd_name)
+                                
+                
+    except requests.exceptions.ChunkedEncodingError as u:
+        num_servers_opcion -= 1
+        continue
+
+        subprocess.run(["clear", ""])
+        print(head)
+        estado_server(portal, opcion_server, bd_name)
+        
+                        
+    if num_servers_act == num_servers:
+        break
+else:
+    time.sleep(0.1)
+
+   
+subprocess.run(["clear", ""])
+
+print(head)
+print(fin)
