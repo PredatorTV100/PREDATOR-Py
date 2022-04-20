@@ -1,3 +1,4 @@
+
 #====[ OPCIONES DEV (0=off/1=on) ]=======
 num_servers=4 #servidores por defecto
 max_retry=50 #Max. reintentos
@@ -5,6 +6,7 @@ m3u_info=1
 auto_reporte=0
 multi_check=0
 repetir_servers=0
+canales_pro=1
 #========================================
 bd_unifi=1#BASE DE DATOS PARA TESTEOS 1=Si/0=No
 bd_name_unifi='BD Unificada'
@@ -33,11 +35,6 @@ ip=get_ip.split('.')[0]
 ip2=get_ip.split('.')[1]
 miip=str(ip+"."+ip2)
 #print(miip)
-
-if miip == '192.168':
-    extc=''
-else:
-    extc=' [DATOS]'
     
 s.close()
 
@@ -64,12 +61,45 @@ def estado_server(portal, opcion_server, bd_name):
      ╰────────────────────────────╯     
      ╭─────────⪼ 🄸🄽🄵🄾 ⪻─────────╮
             ᴇꜱᴛᴇ ᴘʀᴏᴄᴇꜱᴏ ᴘᴜᴇᴅᴇ ᴛᴀʀᴅᴀʀ
-                 ᴜɴᴏꜱ ᴍɪɴᴜᴛᴏꜱ.
+                 ᴜɴᴏꜱ ᴍɪɴᴜᴛᴏꜱ. 
+          [⏱️ 1 - 10 minutos aprox.]
      ╰────────────────────────────╯
                
 """
     print(estado_server)
     return estado_server
+    
+def estado_server_buscando(portal, opcion_server, bd_name):
+    portal=portal.replace('http://','')
+    portal=portal.replace('/c/','')
+    portal=portal.replace('/stalker_portal','')
+    portal=portal.replace('/stalker_portal/c/','')
+    try:
+       portalsplit=portal.split(':')[1]
+       portal=portal.replace(":"+portalsplit,'')
+    except:
+        time.sleep(0.1)
+        
+    estado_server_buscando="""
+    
+     ╭───⪼ 🆂🅴🆁🆅🅴🆁 🅰🅲🆃🆄🅰🅻 ⪻───╮
+     ├● 💻 ➤ """+opcion_server+"""
+     ├──⪼ 📁 ʙᴀꜱᴇ ᴅᴇ ᴅᴀᴛᴏꜱ
+     ├● 💽 ➤ """+bd_name+"""
+     ├● 💿 ➤ <[ SELECCIONANDO ]>
+     ╰────────────────────────────╯     
+     ╭─────────⪼ 🄸🄽🄵🄾 ⪻─────────╮
+            ᴇꜱᴛᴇ ᴘʀᴏᴄᴇꜱᴏ ᴘᴜᴇᴅᴇ ᴛᴀʀᴅᴀʀ
+                 ᴜɴᴏꜱ ᴍɪɴᴜᴛᴏꜱ. 
+          [⏱️ 1 - 10 minutos aprox.]
+     ╰────────────────────────────╯
+               
+"""
+    print(estado_server_buscando)
+    return estado_server_buscando
+    
+    
+    
 def bd_random():
     rand = random.randint(1,3)
     if rand == 1:#CAMD
@@ -122,7 +152,7 @@ def m3u_list(m3u_link, blacklist):
     with open(filelistm3u, 'w', encoding="utf-8") as m3u_list:
         m3u_list.write(get_lines)  
     with open(filelistm3u) as fh:
-    # Skip initial comments that starts with #
+ 
         while True:
             line = fh.readline()
             if not line.startswith('#'):                
@@ -168,8 +198,7 @@ def getserver(portal, blacklist, miip2, mac, BD, lineinlist):
          #time.sleep(3.0)
                               
     while lineinlist == 1:  
-       if portal in line:                                               
-            time.sleep(1.0)
+       if portal in line:                                                          
             get_mac = urllib.request.urlopen(BD)
             count = len(urllib.request.urlopen(BD).readlines())
             L1 = random.randint(1,count)    
@@ -189,8 +218,73 @@ def getserver(portal, blacklist, miip2, mac, BD, lineinlist):
            
         
     return portal, mac, BD, exec_process
-    	
-  
+
+canales=["españa", "España", "ESPAÑA", "Spanish", "SPANISH", "Spanish", "ES |","es |","Es |", "ES|","es|","Es|","spain","Spain","SPAIN","ESPANA", "espana","Espana", "españa"]
+def list(listlink,mac,token,portal):
+    kategori=""
+    canal=""
+    veri=""
+    veri_check=0
+    lista=""
+
+    while True:
+        try:
+            res = requests.get(listlink,  headers=hea2(mac,token,portal), timeout=(2,5), allow_redirects=False,stream=True)
+                  
+            if res.status_code == 200:
+                veri=str(res.text)
+                veri=veri.replace("{", "")
+                exec_process=1
+                veri_check=1
+                #print("""      ✅ Servidor Operativo""")                            
+                break
+            else:
+                exec_process=0
+                veri_check=0                
+                #print("""      ✖️ Servidor Caido""")                		
+                break
+            
+        except:
+            veri_check=0
+            exec_process=0            
+            #print("""      ✖️ Servidor Caido""")
+            break
+
+    
+        
+    if veri_check == 1:
+        
+        if veri.count('title":"')>1:
+            for i in veri.split('title":"'):
+                try:
+                    canal=""
+                    canal= str((i.split('"')[0]).encode('utf-8').decode("unicode-escape")).replace('\/','/')
+                    exec_process=1
+                except:
+                    exec_process=0
+                    
+
+                canal=canal.replace("{", "")				
+                kategori=kategori+canal+"\n"
+	
+    list=kategori
+    
+    if exec_process==1:   
+        for c in canales:	    
+            if c in list:                                             
+                exec_process=1               
+                lista="ok"               
+                break  
+            
+    if lista == "":
+        exec_process=0 
+    else:
+        time.sleep(0.1)
+        exec_process=1
+       
+          	        	 	
+    return list, exec_process
+		
     
 def comprobando_ok(opcion_server):
     comprobando_ok="""
@@ -302,6 +396,43 @@ def estados():
 
       🔄 Actualizando ...
 """
+
+    comprobando_canal_error="""
+     ╭────────── •⚙️• ────────────╮
+      -  ℹ️   ɴᴏ ᴄɪᴇʀʀᴇ ʟᴀ ᴀᴘʟɪᴄᴀᴄɪᴏɴ   - 
+     ╰────────── •📡• ────────────╯
+
+      ⚠️ Actualizando <> [ERROR]
+      ⏭️ Pasando a siguiente servidor..
+"""
+
+    comprobando_canales="""
+     ╭────────── •⚙️• ────────────╮
+      -  ℹ️   ɴᴏ ᴄɪᴇʀʀᴇ ʟᴀ ᴀᴘʟɪᴄᴀᴄɪᴏɴ   - 
+     ╰────────── •📡• ────────────╯
+
+      💽 Obteniendo informacion.
+      ⌚ Espere...
+"""
+
+    comprobando_canal="""
+     ╭────────── •⚙️• ────────────╮
+      -  ℹ️   ɴᴏ ᴄɪᴇʀʀᴇ ʟᴀ ᴀᴘʟɪᴄᴀᴄɪᴏɴ   - 
+     ╰────────── •📡• ────────────╯
+
+      🔄 Actualizando .
+      📺 Comprobando canal...
+"""
+
+    comprobando_m3u="""
+     ╭────────── •⚙️• ────────────╮
+      -  ℹ️   ɴᴏ ᴄɪᴇʀʀᴇ ʟᴀ ᴀᴘʟɪᴄᴀᴄɪᴏɴ   - 
+     ╰────────── •📡• ────────────╯
+
+      ✅ Actualizando <> [OK]
+      📀 Comprobando M3U...
+"""
+
     block="""
      ╭────────── •🔒• ────────────╮
       -  🛑 Tu MAC ha sido bloqueada - 
@@ -349,8 +480,8 @@ def estados():
         
      
 """
-    return block, max_retry_bot, max_retryes, comprobando1, comprobando2, head, cargando1, cargando2, fin
-block, max_retry_bot, max_retryes, comprobando1, comprobando2, head, cargando1, cargando2, fin=estados()  
+    return comprobando_canales,comprobando_canal_error, comprobando_canal, comprobando_m3u, block, max_retry_bot, max_retryes, comprobando1, comprobando2, head, cargando1, cargando2, fin
+comprobando_canales, comprobando_canal_error, comprobando_canal, comprobando_m3u, block, max_retry_bot, max_retryes, comprobando1, comprobando2, head, cargando1, cargando2, fin=estados()  
 
 def blacklist(macdev):
     urlblacklist='https://pastebin.com/raw/xqqMhrqD'
@@ -667,7 +798,7 @@ def comprobar_canal(link):
  return duru
 
 
-def hea2(mac,token):
+def hea2(mac,token, portal):
 	HEADERd={
 "User-Agent":"Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG200 stbapp ver: 4 rev: 1812 Mobile Safari/533.3" ,
 "Referer": "http://"+portal+"/c/" ,
@@ -684,7 +815,7 @@ def hea2(mac,token):
 servers_repetidos=[]
 cambio_bd=0
 num_servers_act=0
-num_servers_opcion=0
+envio=""
 #====[ COMPROBACION Y ACTUALIZACION ]====
 bd_name=""
 if bd_unifi == 1:
@@ -692,18 +823,76 @@ if bd_unifi == 1:
     BD=BDUNIFI
 else:
     BD, bd_name=bd_random()
-
+num_servers_opcion = 1
+portal=""
 while num_servers_act <= num_servers:
+    exec_process=""
+    exec_process_es=""
+    portal_anterior=portal
+    no_seguir=""
+    
     try:
         if repetir_servers == 0:                                          
             portal, mac, BD, exec_process=getserver(portal, blacklist, miip2, mac, BD,lineinlist)
             if portal in servers_repetidos:
-                exec_process=0
+                if canales_pro == 1:
+                    exec_process_es=0
+                else:
+                    exec_process=0
+                    no_seguir=1
+                          
+            else:
+                if canales_pro == 1:
+                    exec_process_es=1
+                else:
+                    exec_process=1                
+        else:
+            portal, mac, BD, exec_process=getserver(portal, blacklist, miip2, mac, BD,lineinlist)
+            if canales_pro == 1:
+                exec_process_es=1
             else:
                 exec_process=1
+                
+        if portal_anterior == portal:           
+            no_seguir=1
+        else:
+            no_seguir=0
+            
+            
+        if no_seguir==1:
+            exec_process=0           
+        else:
+            opcion_server = "PredatorTV ["+str(num_servers_opcion)+"]"
+            subprocess.run(["clear", ""])        
+            if canales_pro == 1:
+                subprocess.run(["clear", ""]) 
+                print(head)
+                estado_server_buscando(portal, opcion_server, bd_name)
+                print(comprobando_canales)                     
+            else:
+                exec_process=1 
+ 
+        
+            if exec_process_es == 1:    
+                token=''                
+                try:
+                    token=gtoken()                                     
+                    listlink="http://"+portal+"/portal.php?action=get_genres&type=itv&JsHttpRequest=1-xml"
+                    livelist, exec_process=list(listlink,mac,token,portal)                                              
+                except:
+                    exec_process=0                   
+            else:
+                if canales_pro == 1:                
+                    exec_process=0
+                else:
+                    exec_process=1                
+           
+            
+#INICIAMOS PROCESOS          
         if exec_process == 1:
-            #print('Has pasado')
-            #time.sleep(2.0)
+            token=''
+            token=gtoken()
+            #time.sleep(90000000.0)              
             pase_no=0          
             if cambio_bd >= 10:
                 cambio_bd=0        
@@ -711,10 +900,7 @@ while num_servers_act <= num_servers:
                     bd_name=bd_name                    
                     BD=BDUNIFI
                 else:
-                    BD, bd_name=bd_random()
-                                             
-            num_servers_opcion += 1
-            opcion_server = "PredatorTV ["+str(num_servers_opcion)+"]"
+                    BD, bd_name=bd_random()                                                                     
             subprocess.run(["clear", ""])
             print(head)
             estado_server(portal, opcion_server, bd_name)
@@ -733,22 +919,20 @@ while num_servers_act <= num_servers:
             estado_server(portal, opcion_server, bd_name)
             print(cargando2)
             time.sleep(0.5)                                                                                      
-            #====[ Obtener TOKEN ]=========
             subprocess.run(["clear", ""])
             print(head)
             estado_server(portal, opcion_server, bd_name)
             print(cargando1)
-            time.sleep(0.5)
-            token=''
-            token=gtoken()
+            time.sleep(0.5)           
             subprocess.run(["clear", ""])
             print(head)
             estado_server(portal, opcion_server, bd_name)
             print(cargando2)
             time.sleep(0.5)   
-            #=====[ Obtener Canal ]=======               	  
+            #=====[ Obtener Canal ]=======
+            	            	  
             get_cid_link= "http://"+portal+"/"+ext+"?type=itv&action=get_all_channels&force_ch_link_check=&JsHttpRequest=1-xml"
-            get_cid = s.get(get_cid_link, headers=hea2(mac,token), timeout=10, verify=False)      
+            get_cid = requests.get(get_cid_link, headers=hea2(mac,token, portal), timeout=10, verify=False)      
             cid_text=""        
             cid_text=str(get_cid.text)         
             subprocess.run(["clear", ""])
@@ -794,9 +978,9 @@ while num_servers_act <= num_servers:
                         cid=cid2                                    
                     if cidin == 3:
                         cid=cid3
-                                                   
+                                               
                     get_canal_link="http://"+portal+"/"+ext+"?type=itv&action=create_link&cmd=ffmpeg%20http://localhost/ch/"+str(cid)+"_&series=&forced_storage=0&disable_ad=0&download=0&force_ch_link_check=0&JsHttpRequest=1-xml"                                
-                    get_canal = s.get(get_canal_link, headers=hea2(mac,token), timeout=15, verify=False)
+                    get_canal = s.get(get_canal_link, headers=hea2(mac,token, portal), timeout=15, verify=False)
                     canal=""
                     canal=str(get_canal.text)
                     link=''                         
@@ -817,8 +1001,8 @@ while num_servers_act <= num_servers:
                     subprocess.run(["clear", ""])
                     print(head)
                     estado_server(portal, opcion_server, bd_name)
-                    print(comprobando2)
-                    time.sleep(0.5)
+                    print(comprobando_canal)
+                    time.sleep(0.5)                    
                     pase = comprobar_canal(link)
                     if pase == 'OK':                                            
                         if multi_check == 1:
@@ -851,12 +1035,21 @@ while num_servers_act <= num_servers:
                     veristatusm3u='No Disponible'
 
  
-                try:
-                    res = requests.get(playerlink, headers=hea2(mac,token), timeout=7, verify=False)
+                try:                   
+                    subprocess.run(["clear", ""])
+                    print(head)
+                    estado_server(portal, opcion_server, bd_name)
+                    print(comprobando_canal)
+                    res = requests.get(playerlink, headers=hea2(mac,token, portal), timeout=7, verify=False)
+                    time.sleep(1.0)
                 except:
                     playerlink=playerlink2
-                    res = requests.get(playerlink, headers=hea2(mac,token), timeout=7, verify=False)               
-				     
+                    res = requests.get(playerlink, headers=hea2(mac,token, portal), timeout=7, verify=False)               
+                    subprocess.run(["clear", ""])
+                    print(head)
+                    estado_server(portal, opcion_server, bd_name)
+                    print(comprobando_canal)
+                    time.sleep(2.0)
                 veri=""
                 veristatus=""
                 veri=str(res.text)
@@ -879,15 +1072,26 @@ while num_servers_act <= num_servers:
                 
                 if pase_no == 1:
                     pase='no'
+                    subprocess.run(["clear", ""])
+                    print(head)
+                    estado_server(portal, opcion_server, bd_name)
+                    print(comprobando_canal_error)
+                    time.sleep(1.5)
                 if pase == 'OK':
                     if m3u_info == 1:
-                        try:
-                            m3u_check=m3u_list(m3u_link, blacklist)                                                       
+                        ext_m3u=''
+                        try:                            
+                            subprocess.run(["clear", ""])
+                            print(head)
+                            estado_server(portal, opcion_server, bd_name)
+                            print(comprobando_m3u)
+                            m3u_check=m3u_list(m3u_link, blacklist)                                               
                         except:
                             req="error"
                         try:
                             req=str(requests.get(m3u_check, timeout=(2,5), allow_redirects=False,stream=True).status_code)
                             if req == "200" or (req == "302"):
+                                ext_m3u='[M3U]'
                                 m3u_result=' ✅ ➤  ONLINE'
                             else:
                                 m3u_result=" ⛔ ➤  OFFLINE"
@@ -902,16 +1106,24 @@ while num_servers_act <= num_servers:
             #cambio_bd = 0
                 if repetir_servers == 0:               
                     servers_repetidos+=[portal]
+                num_servers_opcion += 1
                 num_servers_act += 1                
                 envio += 1
-                opcion = "PredatorTV ["+str(num_servers_act)+"]"+extc
+                if m3u_info == 1:
+                    opcion = "PredatorTV ["+str(num_servers_act)+"]"+ext_m3u
+                else:
+                    opcion = "PredatorTV ["+str(num_servers_act)+"]"
                 url = "https://iptvextreme.eu/"
                 get_data=update_servers()               
                 responses=s.post(url = url, headers = headers, data = get_data)
                 subprocess.run(["clear", ""])
                 print(head)
                 estado_server(portal, opcion_server, bd_name)
-                update_current(opcion_server, bd_name, macdev, nick, portal, mac, m3u_info, m3u_result, token)
+                if m3u_info == 1:
+                    update_current(opcion_server, bd_name, macdev, nick, portal, mac, m3u_info, m3u_result, token)
+                else:
+                    m3u_result=''
+                    update_current(opcion_server, bd_name, macdev, nick, portal, mac, m3u_info, m3u_result, token)
                 if num_servers_act != num_servers:
                     comprobando_ok(opcion_server)
                     time.sleep(2)                                
@@ -919,12 +1131,9 @@ while num_servers_act <= num_servers:
                     comprobando_fin(opcion_server)
                     time.sleep(2)
             else:
-                subprocess.run(["clear", ""])               
-                print(head)            
-                estado_server(portal, opcion_server, bd_name)
-                print(comprobando1)
+                subprocess.run(["clear", ""])                               
                 cambio_bd+=1
-                num_servers_opcion -= 1
+                
            # time.sleep(3.0)
     except requests.exceptions.Timeout as a:
         error='Espera agotada (Timeout)'
@@ -934,7 +1143,7 @@ while num_servers_act <= num_servers:
             break
         elif envio<=1:                     
             #blacklisttxtwrite(portal, blacklist, miip2)    
-            num_servers_opcion -= 1
+            
             subprocess.run(["clear", ""])
             print(head)            
             estado_server(portal, opcion_server, bd_name)
@@ -947,7 +1156,7 @@ while num_servers_act <= num_servers:
         cambio_bd+=1
         error="Error de conexion"            
         blacklisttxtwrite(portal, blacklist, miip2)
-        num_servers_opcion -= 1
+
         subprocess.run(["clear", ""])
         print(head)            
         estado_server(portal, opcion_server, bd_name) 
@@ -960,7 +1169,7 @@ while num_servers_act <= num_servers:
         estado_server(portal, opcion_server, bd_name)
         continue
     except requests.exceptions.InvalidHeader as i:
-        num_servers_opcion -= 1
+        
         continue
 
         subprocess.run(["clear", ""])
@@ -968,7 +1177,7 @@ while num_servers_act <= num_servers:
         estado_server(portal, opcion_server, bd_name)
     
     except requests.exceptions.ProtocolError as o:
-        num_servers_opcion -= 1
+
         continue
 
         subprocess.run(["clear", ""])
@@ -977,7 +1186,7 @@ while num_servers_act <= num_servers:
                                 
                 
     except requests.exceptions.ChunkedEncodingError as u:
-        num_servers_opcion -= 1
+      
         continue
 
         subprocess.run(["clear", ""])
