@@ -221,6 +221,7 @@ def getserver(portal, blacklist, miip2, mac, BD, lineinlist):
 
 canales=["españa", "España", "ESPAÑA", "Spanish", "SPANISH", "Spanish", "ES |","es |","Es |", "ES|","es|","Es|","spain","Spain","SPAIN","ESPANA", "espana","Espana", "españa"]
 def list(listlink,mac,token,portal):
+    time.sleep(0.1)
     kategori=""
     canal=""
     veri=""
