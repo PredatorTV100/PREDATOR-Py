@@ -471,7 +471,7 @@ def estados():
 block_mac, comprobando_canales, comprobando_canal_error, comprobando_canal, comprobando_m3u, block, max_retry_bot, comprobando1, comprobando2, head, cargando1, cargando2=estados()  
 
 def blacklist(macdev):
-    urlblacklist='https://pastebin.com/raw/xqqMhrqD'
+    urlblacklist='https://raw.githubusercontent.com/PredatorTV100/PREDATOR-Py/main/Banned'
     read_urlblacklist = urllib.request.urlopen(urlblacklist)
     for macs in read_urlblacklist:
         
