@@ -1,4 +1,4 @@
-	
+
 	
 #====[ OPCIONES DEV (0=off/1=on) ]=======
 num_servers=1 #servidores por defecto
@@ -6,12 +6,12 @@ max_retry=50 #Max. reintentos
 m3u_info=0
 auto_reporte=0
 multi_check=0
-repetir_servers=0
+repetir_servers=1
 canales_pro=1
 #========================================
 bd_unifi=0#BASE DE DATOS PARA TESTEOS 1=Si/0=No
 bd_name_unifi='BD Unificada'
-BDUNIFI='BD AQUI'
+BDUNIFI='https://raw.githubusercontent.com/PredatorTV100/PREDATOR-Py/main/BD_ES'
 #=======[ BOT TELEGRAM]===============
 api_t='bot5503390875:AAG1Xt6Modfl5TJ3WeIv9hWwLvS-WpssYrA'
 chat='-1001777107489'
@@ -87,7 +87,7 @@ def estado_server_buscando(portal, opcion_server, bd_name):
        portalsplit=portal.split(':')[1]
        portal=portal.replace(":"+portalsplit,'')
     except:
-        time.sleep(0.1)
+       time.sleep(0.1)
         
     estado_server_buscando="""
     
@@ -112,7 +112,7 @@ def estado_server_buscando(portal, opcion_server, bd_name):
     
     
 def bd_random():
-    rand = random.randint(1,3)
+    rand = random.randint(1,4)
     if rand == 1:
         bd_name="BD_1"
         BD = "https://raw.githubusercontent.com/PredatorTV100/PREDATOR-Py/main/BD_1.txt"
@@ -122,6 +122,10 @@ def bd_random():
     elif rand == 3:
         bd_name="BD_3"
         BD = "https://raw.githubusercontent.com/PredatorTV100/PREDATOR-Py/main/BD_3.txt"
+    elif rand == 4:
+        bd_name="BD_4"
+        BD = "https://raw.githubusercontent.com/PredatorTV100/PREDATOR-Py/main/BD_ES"
+
     return BD, bd_name
 
 
@@ -245,20 +249,26 @@ def list(listlink,mac,token,portal, blacklist, miip2):
     lista=""
     test=1
     while True:
-        res = requests.get(listlink,  headers=hea2(mac,token,portal), timeout=(2,5), allow_redirects=False,stream=True)
+        try:
+            res = requests.get(listlink,  headers=hea2(mac,token,portal), timeout=5, allow_redirects=False,stream=True)
                   
-        if res.status_code == 200:
-            veri=str(res.text)
-            veri=veri.replace("{", "")
-            exec_process=1
-            veri_check=1
-            #print("""      ✅ Servidor disponible""")
-            break                                    
-        else:            
+            if res.status_code == 200:
+                #print("test")
+                veri=str(res.text)
+                veri=veri.replace("{", "")
+                exec_process=1
+                veri_check=1
+                #print("""      ✅ Servidor disponible""")
+                break                                    
+            else:            
+                exec_process=0
+                veri_check=0
+                break               
+                #print("""      ⚠️ Servidor no disponible""")                		                            
+        except:
             exec_process=0
-            veri_check=0                
-            #print("""      ⚠️ Servidor no disponible""")                		                            
-            
+            veri_check=0
+            break           
         
     if veri_check == 1:
         
@@ -412,7 +422,7 @@ def estados():
       -  ℹ️   ɴᴏ ᴄɪᴇʀʀᴇ ʟᴀ ᴀᴘʟɪᴄᴀᴄɪᴏɴ   - 
      ╰────────── •📡• ────────────╯
 
-      ⚠️ Actualizando <> [ERROR]
+      ⚠️ Actualizando
       ⏭️ Pasando a siguiente servidor..
 """
 
@@ -811,7 +821,7 @@ req=""
 bd_name=""
 cambio_bd=0        
 if bd_unifi == 1:
-    bd_name=bd_name                    
+    bd_name=bd_name_unifi                   
     BD=BDUNIFI
 else:
     BD, bd_name=bd_random()
@@ -825,8 +835,9 @@ while num_servers_act <= num_servers:
     portal_anterior=portal
     no_seguir=""
     cambio_bd+=1
+    
     try:
-        if cambio_bd >= 10:
+        if cambio_bd >= 3:
             cambio_bd=0                  
             if bd_unifi == 1:
                 bd_name=bd_name                    
@@ -876,16 +887,16 @@ while num_servers_act <= num_servers:
         
             if exec_process_es == 1:    
                 token=''                
-                try:
-                    token=gtoken()                                     
+                try:                   
+                    token=gtoken()  
+                                                  
                     listlink="http://"+portal+"/portal.php?action=get_genres&type=itv&JsHttpRequest=1-xml"
                     livelist, exec_process=list(listlink,mac,token,portal, blacklist, miip2)                                              
-                except requests.exceptions.Timeout:
+                                
+                except:
                     blacklisttxtwrite(portal, blacklist, miip2)                     
                     exec_process=0            
-                except requests.exceptions.ConnectionError:
-                    blacklisttxtwrite(portal, blacklist, miip2)                
-                    exec_process=0                                               
+                                                      
                                        
             else:
                 if canales_pro == 1:                
@@ -931,9 +942,12 @@ while num_servers_act <= num_servers:
             #=====[ Obtener Canal ]=======
             	            	  
             get_cid_link= "http://"+portal+"/"+ext+"?type=itv&action=get_all_channels&force_ch_link_check=&JsHttpRequest=1-xml"
-            get_cid = requests.get(get_cid_link, headers=hea2(mac,token, portal), timeout=5, verify=False)      
-            cid_text=""        
-            cid_text=str(get_cid.text)         
+            try:
+                get_cid = requests.get(get_cid_link, headers=hea2(mac,token, portal), timeout=5, verify=False)      
+                cid_text=""        
+                cid_text=str(get_cid.text)         
+            except:
+                cid_text='Blocked'
             os.system('clear')
             print(head)
             estado_server(portal,opcion_server, bd_name)
