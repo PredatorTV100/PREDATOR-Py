@@ -1,7 +1,7 @@
 
 	
 #====[ OPCIONES DEV (0=off/1=on) ]=======
-num_servers=1 #servidores por defecto
+num_servers=4 #servidores por defecto
 max_retry=50 #Max. reintentos
 m3u_info=0
 auto_reporte=0
